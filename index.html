@@ -181,12 +181,13 @@ function render(){
  var app=$('#app'),open=isOpen();
  document.title=S.short||S.name;
  var mastersStrip=S.masters.map(function(m,i){var p=m.photos&&m.photos[0];return '<button class="mini" data-m="'+i+'">'+(p?'<img src="'+esc(p)+'" alt="" loading="lazy">':'<div class="ph"></div>')+'<b>'+esc(m.name)+'</b><span>'+esc(m.role)+'</span></button>'}).join('');
- var popular=allSvc().slice(0).sort(function(a,b){return (b.s.popular?1:0)-(a.s.popular?1:0)}).filter(function(x,i){return [0,4,7,10].indexOf(i)>=0||x.s.popular});
+ var all=allSvc(),popular=all.filter(function(x){return x.s.popular});if(!popular.length)popular=all.filter(function(x,i){return [0,4,7,10].indexOf(i)>=0});
  app.innerHTML=
  '<section class="page on" id="p-home">'+
-  '<div class="hero"><img src="'+esc(S.cover)+'" alt=""><div class="cap"><h1>'+esc(S.name)+'</h1><p>'+esc(S.tagline||'')+'</p><span class="open'+(open?'':' closed')+'"><i></i>'+(open?'Сейчас открыто':'Сейчас закрыто')+' · '+esc(S.hours_text.split(',')[0])+'</span></div></div>'+
+  '<div class="hero"><img src="'+esc(S.cover)+'" alt=""><div class="cap"><h1>'+esc(S.name)+'</h1><p>'+esc(S.tagline||'')+'</p><span class="open'+(open?'':' closed')+'"><i></i>'+(open?'Сейчас открыто':'Сейчас закрыто')+' · '+esc(S.hours_text.split(',')[0])+'</span>'+(S.rating_text?' <span class="open"><b style="color:#ffd36b">★</b>'+esc(S.rating_text)+'</span>':'')+'</div></div>'+
   '<div class="cta"><button class="btn" data-book>Записаться</button><button class="btn ghost" data-go="svc">Цены</button></div>'+
   '<h2>Мастера</h2><div class="strip">'+mastersStrip+'</div>'+
+  (S.team_photo?'<div style="margin:12px 16px 0"><img src="'+esc(S.team_photo)+'" alt="" loading="lazy" data-zoom style="width:100%;border-radius:16px;aspect-ratio:3/2;object-fit:cover;object-position:top"></div>':'')+
   '<h2>Популярное</h2>'+popular.map(svcRow).join('')+
   '<h2>Как нас найти</h2><div class="card info">'+
    '<div class="row">'+IC.pin+'<div>'+esc(S.address)+(S.how_to_get?'<div class="sub">'+esc(S.how_to_get)+'</div>':'')+'</div></div>'+
