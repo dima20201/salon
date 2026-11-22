@@ -184,7 +184,7 @@ function render(){
  var all=allSvc(),popular=all.filter(function(x){return x.s.popular});if(!popular.length)popular=all.filter(function(x,i){return [0,4,7,10].indexOf(i)>=0});
  app.innerHTML=
  '<section class="page on" id="p-home">'+
-  '<div class="hero"><img src="'+esc(S.cover)+'" alt=""><div class="cap"><h1>'+esc(S.name)+'</h1><p>'+esc(S.tagline||'')+'</p><span class="open'+(open?'':' closed')+'"><i></i>'+(open?'Сейчас открыто':'Сейчас закрыто')+' · '+esc(S.hours_text.split(',')[0])+'</span>'+(S.rating_text?' <span class="open"><b style="color:#ffd36b">★</b>'+esc(S.rating_text)+'</span>':'')+'</div></div>'+
+  '<div class="hero"><img src="'+esc(S.cover)+'" alt=""><div class="cap"><h1>'+esc(S.name)+'</h1><p>'+esc(S.tagline||'')+'</p><span class="open'+(open?'':' closed')+'"><i></i>'+(open?'Сейчас открыто':'Сейчас закрыто')+(function(){var h=S.hours[WD[new Date().getDay()]];return h?' · сегодня '+h[0]+'–'+h[1]:' · сегодня выходной'})()+'</span>'+(S.rating_text?' <span class="open"><b style="color:#ffd36b">★</b>'+esc(S.rating_text)+'</span>':'')+'</div></div>'+
   '<div class="cta"><button class="btn" data-book>Записаться</button><button class="btn ghost" data-go="svc">Цены</button></div>'+
   '<h2>Мастера</h2><div class="strip">'+mastersStrip+'</div>'+
   (S.team_photo?'<div style="margin:12px 16px 0"><img src="'+esc(S.team_photo)+'" alt="" loading="lazy" data-zoom style="width:100%;border-radius:16px;aspect-ratio:3/2;object-fit:cover;object-position:top"></div>':'')+
@@ -207,7 +207,7 @@ function render(){
  '<section class="page" id="p-me"></section>';
  showCat(0);renderMe();
 }
-function svcRow(x){return '<div class="card svc"><div class="n"><b>'+esc(x.s.name)+'</b><span>'+(x.s.min?dur(x.s.min):'')+'</span></div><span class="price">'+price(x.s)+'</span><button class="add" data-svc="'+x.ci+':'+x.si+'" aria-label="Записаться">+</button></div>'}
+function svcRow(x){return '<div class="card svc"><div class="n"><b>'+esc(x.s.name)+'</b><span>'+(x.s.min&&!x.s.est?dur(x.s.min):'')+'</span></div><span class="price">'+price(x.s)+'</span><button class="add" data-svc="'+x.ci+':'+x.si+'" aria-label="Записаться">+</button></div>'}
 function showCat(i){[].forEach.call(document.querySelectorAll('.tab'),function(t){t.classList.toggle('on',+t.dataset.cat===i)});
  $('#svclist').innerHTML=S.categories[i].items.map(function(s,si){return svcRow({ci:i,si:si,s:s})}).join('')}
 function renderMe(){var u=TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user,my=(HASH.my||[]).filter(function(b){return b.date>=iso(new Date())});
@@ -227,9 +227,9 @@ function openBook(pre){B=Object.assign({step:0},pre||{});if(B.ci!=null)B.step=B.
 function closeBook(){$('#sheet').classList.remove('on');document.body.style.overflow='';if(TG)TG.MainButton.hide()}
 function svcOf(){return S.categories[B.ci].items[B.si]}
 function head(t){var n=5;return '<div class="grab"></div><div class="sh-head">'+(B.step>0?'<button class="x" data-back>'+IC.back+'</button>':'')+'<h3>'+t+'</h3><button class="x" data-close>'+IC.x+'</button></div><div class="steps">'+Array.apply(null,Array(n)).map(function(_,i){return '<i class="'+(i<=B.step?'on':'')+'"></i>'}).join('')+'</div>'}
-function chosen(){if(B.ci==null)return'';var s=svcOf(),m=B.m>=0&&B.m!=null?S.masters[B.m].name:'';return '<div class="card chosen"><b>'+esc(s.name)+'</b> · '+price(s)+(s.min?' · '+dur(s.min):'')+(m?'<br><span class="sub">Мастер: '+esc(m)+'</span>':'')+(B.date?'<br><span class="sub">'+dlabel(B.date)+(B.time?' в '+B.time:'')+'</span>':'')+'</div>'}
+function chosen(){if(B.ci==null)return'';var s=svcOf(),m=B.m>=0&&B.m!=null?S.masters[B.m].name:'';return '<div class="card chosen"><b>'+esc(s.name)+'</b> · '+price(s)+(s.min&&!s.est?' · '+dur(s.min):'')+(m?'<br><span class="sub">Мастер: '+esc(m)+'</span>':'')+(B.date?'<br><span class="sub">'+dlabel(B.date)+(B.time?' в '+B.time:'')+'</span>':'')+'</div>'}
 function drawStep(){var sb=$('#sb'),h='';
- if(B.step===0){h=head('Выберите услугу');S.categories.forEach(function(c,ci){h+='<h2 style="margin-top:14px">'+esc(c.name)+'</h2>'+c.items.map(function(s,si){return '<button class="card opt" data-pick="'+ci+':'+si+'"><div style="flex:1"><b style="font-weight:500">'+esc(s.name)+'</b><div class="sub">'+(s.min?dur(s.min):'')+'</div></div><span class="price">'+price(s)+'</span></button>'}).join('')})}
+ if(B.step===0){h=head('Выберите услугу');S.categories.forEach(function(c,ci){h+='<h2 style="margin-top:14px">'+esc(c.name)+'</h2>'+c.items.map(function(s,si){return '<button class="card opt" data-pick="'+ci+':'+si+'"><div style="flex:1"><b style="font-weight:500">'+esc(s.name)+'</b><div class="sub">'+(s.min&&!s.est?dur(s.min):'')+'</div></div><span class="price">'+price(s)+'</span></button>'}).join('')})}
  else if(B.step===1){h=head('К какому мастеру?')+chosen()+mastersFor(B.ci).map(function(m){var i=S.masters.indexOf(m);return '<button class="card opt" data-mm="'+i+'">'+ava(m)+'<div><b style="font-weight:500">'+esc(m.name)+'</b><div class="sub">'+esc(m.role)+'</div></div></button>'}).join('')+'<button class="card opt" data-mm="-1"><span class="ava" style="background:var(--t3)">?</span><div><b style="font-weight:500">Любой свободный</b><div class="sub">Подберём ближайшее время</div></div></button>'}
  else if(B.step===2){h=head('Когда удобно?')+chosen();var d=new Date(),ds='',len=svcOf().min||60;h+='<div class="dates">';
   for(var i=0;i<14;i++){var x=new Date(d.getTime()+i*864e5),k=iso(x),n=slots(k,len).length;if(!B.date&&n)B.date=k;h+='<button class="date'+(k===B.date?' sel':'')+(n?'':' none')+'" data-date="'+k+'"><small>'+(i===0?'Сег':i===1?'Завт':WDN[x.getDay()])+'</small><b>'+x.getDate()+'</b><small>'+MON[x.getMonth()].slice(0,3)+'</small></button>'}
@@ -241,7 +241,7 @@ function drawStep(){var sb=$('#sb'),h='';
   '<div class="foot"><button class="btn" data-next>Проверить запись</button></div>'}
  else if(B.step===4){var s=svcOf();h=head('Всё верно?')+'<div class="card info" style="margin-bottom:4px">'+
   '<div class="row">'+IC.cal+'<div><b style="font-weight:500">'+esc(s.name)+'</b><div class="sub">'+dlabel(B.date)+' в '+B.time+(B.m>=0?' · '+esc(S.masters[B.m].name):'')+'</div></div></div>'+
-  '<div class="row">'+IC.card+'<div>'+price(s)+(s.min?' · '+dur(s.min):'')+'</div></div>'+
+  '<div class="row">'+IC.card+'<div>'+price(s)+(s.min&&!s.est?' · '+dur(s.min):'')+'</div></div>'+
   '<div class="row">'+IC.pin+'<div>'+esc(S.address)+'</div></div></div>'+
   '<p class="note">'+esc(B.name)+' · '+esc(B.phone)+'</p><div class="foot"><button class="btn" data-confirm>Записаться</button></div><p class="note">Подтверждение придёт в чат с ботом, а за день до визита — напоминание</p>'}
  sb.innerHTML=h;sb.scrollTop=0}
