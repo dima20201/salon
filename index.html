@@ -185,7 +185,7 @@ function render(){
  app.innerHTML=
  '<section class="page on" id="p-home">'+
   '<div class="hero"><img src="'+esc(S.cover)+'" alt=""><div class="cap"><h1>'+esc(S.name)+'</h1><p>'+esc(S.tagline||'')+'</p><span class="open'+(open?'':' closed')+'"><i></i>'+(open?'Сейчас открыто':'Сейчас закрыто')+(function(){var h=S.hours[WD[new Date().getDay()]];return h?' · сегодня '+h[0]+'–'+h[1]:' · сегодня выходной'})()+'</span>'+(S.rating_text?' <span class="open"><b style="color:#ffd36b">★</b>'+esc(S.rating_text)+'</span>':'')+'</div></div>'+
-  '<div class="cta"><button class="btn" data-book>Записаться</button><button class="btn ghost" data-go="svc">Цены</button></div>'+
+  '<div class="cta"><button class="btn" data-book>'+(RO?'Записаться в чате':'Записаться')+'</button><button class="btn ghost" data-go="svc">Цены</button></div>'+
   '<h2>Мастера</h2><div class="strip">'+mastersStrip+'</div>'+
   (S.team_photo?'<div style="margin:12px 16px 0"><img src="'+esc(S.team_photo)+'" alt="" loading="lazy" data-zoom style="width:100%;border-radius:16px;aspect-ratio:3/2;object-fit:cover;object-position:top"></div>':'')+
   '<h2>Популярное</h2>'+popular.map(svcRow).join('')+
@@ -222,7 +222,9 @@ function go(p){[].forEach.call(document.querySelectorAll('.page'),function(x){x.
 function haptic(){try{TG&&TG.HapticFeedback.selectionChanged()}catch(e){}}
 
 /* ---- запись по шагам ---- */
-function openBook(pre){B=Object.assign({step:0},pre||{});if(B.ci!=null)B.step=B.m!=null?2:1;if(B.step===1){var ms=mastersFor(B.ci);if(ms.length<2){B.m=ms.length?S.masters.indexOf(ms[0]):-1;B.step=2}}
+var RO=Q.get('ro')==='1',BACK=Q.get('back')||'';
+function toChat(){if(BACK)location.href=BACK}
+function openBook(pre){if(RO){toChat();return}B=Object.assign({step:0},pre||{});if(B.ci!=null)B.step=B.m!=null?2:1;if(B.step===1){var ms=mastersFor(B.ci);if(ms.length<2){B.m=ms.length?S.masters.indexOf(ms[0]):-1;B.step=2}}
  $('#sheet').classList.add('on');document.body.style.overflow='hidden';drawStep()}
 function closeBook(){$('#sheet').classList.remove('on');document.body.style.overflow='';if(TG)TG.MainButton.hide()}
 function svcOf(){return S.categories[B.ci].items[B.si]}
@@ -271,6 +273,7 @@ document.addEventListener('click',function(e){var t=e.target.closest('button,[da
  if(d.time){B.time=d.time;haptic();drawStep();return}
  if(d.next!==undefined){if(B.step===3){B.name=$('#fn').value.trim();B.phone=$('#fp').value.trim();if(!B.name){$('#fn').focus();return}if(B.phone.replace(/\D/g,'').length<10){$('#fp').focus();$('#fp').style.borderColor='#c0563f';return}}B.step++;drawStep();return}
  if(d.confirm!==undefined){confirmBook();return}
+ if(d.cancel&&RO){toChat();return}
  if(d.cancel){if(confirm('Отменить эту запись?')){if(TG&&TG.sendData){TG.sendData(JSON.stringify({a:'cancel',id:d.cancel}))}}return}
 });
 // фильтр услуг для «Записаться к мастеру»
