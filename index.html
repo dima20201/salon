@@ -224,7 +224,7 @@ function haptic(){try{TG&&TG.HapticFeedback.selectionChanged()}catch(e){}}
 /* ---- запись по шагам ---- */
 var RO=Q.get('ro')==='1',BACK=Q.get('back')||'';
 function toChat(){if(BACK)location.href=BACK}
-function openBook(pre){if(RO){toChat();return}B=Object.assign({step:0},pre||{});if(B.ci!=null)B.step=B.m!=null?2:1;if(B.step===1){var ms=mastersFor(B.ci);if(ms.length<2){B.m=ms.length?S.masters.indexOf(ms[0]):-1;B.step=2}}
+function openBook(pre){if(S&&S.mode==='mini'){location.href='tel:'+String(S.phone||'').replace(/[^\d+]/g,'');return}if(RO){toChat();return}B=Object.assign({step:0},pre||{});if(B.ci!=null)B.step=B.m!=null?2:1;if(B.step===1){var ms=mastersFor(B.ci);if(ms.length<2){B.m=ms.length?S.masters.indexOf(ms[0]):-1;B.step=2}}
  $('#sheet').classList.add('on');document.body.style.overflow='hidden';drawStep()}
 function closeBook(){$('#sheet').classList.remove('on');document.body.style.overflow='';if(TG)TG.MainButton.hide()}
 function svcOf(){return S.categories[B.ci].items[B.si]}
